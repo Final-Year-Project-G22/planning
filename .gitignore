@@ -1,0 +1,15 @@
+# secrets
+.env
+
+# code sub-repos (each tracked in its own GitHub repo)
+/backend/
+/web/
+/mobile/
+/web-worktrees/
+
+# agent machinery
+.pi-subagents/
+
+# OS / editor
+.DS_Store
+*.swp
