@@ -1,7 +1,9 @@
 # ADR 002: Agentic RAG with ReAct Loop
 
 ## Status
-Proposed
+Under review — see FIN-73 (research: is ReAct the best loop pattern for grounded QA?); may be superseded by docs/research/agentic-loop-patterns.md.
+
+Originally: Proposed
 
 ## Date
 2026-05-26
