@@ -108,14 +108,14 @@ Ordered by impact; each is a config change or small, contained code change.
 ## 5. Sources
 
 - **Kept (primary, official):**
-  - Cohere supported languages — https://docs.cohere.com/docs/supported-languages (Command family language list; basis for "no official Amharic support" finding) — **verify live**
-  - Cohere Embed docs — https://docs.cohere.com/docs/embed (embed-multilingual-v3.0, 100+ languages) — **verify live**
-  - Cohere pricing — https://docs.cohere.com/pricing (Command A rates) — **verify live**
-  - Google Gemini API models — https://ai.google.dev/gemini-api/docs/models (100+ languages incl. Amharic) — **verify live**
-  - Google Gemini API pricing — https://ai.google.dev/gemini-api/docs/pricing (2.5 Flash/Pro rates) — **verify live**
-  - Google DeepMind Gemini 2.5 Flash model card — https://storage.googleapis.com/deepmind-media/Model-Cards/Gemini-2.5-Flash-Model-Card.pdf (language coverage) — **verify live**
-  - Vertex AI text embeddings — https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/get-text-embeddings (text-multilingual-embedding-002, languages/dims) — **verify live**
-  - Microsoft multilingual-e5 model card — https://huggingface.co/intfloat/multilingual-e5-large (100 languages, dims) — **verify live**
+  - Cohere supported languages — https://docs.cohere.com/docs/supported-languages (Command family language list; basis for "no official Amharic support" finding) — verified live (2026-08-11; re-confirmed 2026-08-12)
+  - Cohere Embed docs — https://docs.cohere.com/docs/embed (embed-multilingual-v3.0, 100+ languages) — verified live (2026-08-11; re-confirmed 2026-08-12)
+  - Cohere pricing — https://docs.cohere.com/pricing (Command A rates) — verified live (2026-08-11; re-confirmed 2026-08-12)
+  - Google Gemini API models — https://ai.google.dev/gemini-api/docs/models (100+ languages incl. Amharic) — verified live (2026-08-11; re-confirmed 2026-08-12)
+  - Google Gemini API pricing — https://ai.google.dev/gemini-api/docs/pricing (2.5 Flash/Pro rates) — verified live (2026-08-11; re-confirmed 2026-08-12)
+  - Google DeepMind Gemini 2.5 Flash model card — https://storage.googleapis.com/deepmind-media/Model-Cards/Gemini-2.5-Flash-Model-Card.pdf (language coverage) — verified live (2026-08-11; re-confirmed 2026-08-12)
+  - Vertex AI text embeddings — https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/get-text-embeddings (text-multilingual-embedding-002, languages/dims) — verified live (2026-08-11; re-confirmed 2026-08-12)
+  - Microsoft multilingual-e5 model card — https://huggingface.co/intfloat/multilingual-e5-large (100 languages, dims) — verified live (2026-08-11; re-confirmed 2026-08-12)
   - PostgreSQL FTS docs — https://www.postgresql.org/docs/current/textsearch-controls.html and https://www.postgresql.org/docs/current/functions-textsearch.html (predefined configs incl. `simple`; `plainto_tsquery` AND semantics)
 - **Kept (repo primary):** `ai-service/app/config.py`, `ai-service/infrastructure/embeddings/{__init__,cohere,gemini,ollama}.py`, `ai-service/infrastructure/llm/{cohere,gemini}.py`, `ai-service/infrastructure/database/{models_sqlalchemy.py,repositories/knowledge_repository.py}`, `ai-service/core/usecases/strategies/{simple_ask,agentic_ask}.py`, `ai-service/infrastructure/tools/{local/search_knowledge_base.py,intent_classifier.py}`, `ai-service/infrastructure/chunking/structural.py`, `ai-service/app/container.py`, `docker-compose.yml`.
 - **Dropped:** none — no secondary write-ups were used (per ticket instruction).
@@ -124,7 +124,7 @@ Ordered by impact; each is a config change or small, contained code change.
 
 ## 6. Gaps
 
-1. **Live web verification was not possible in this run** (web_search tool unavailable). Every `[doc:]` claim and `[ver-flag]` must be confirmed against the official URLs before external use — particularly (a) whether Cohere's supported-language page still excludes Amharic for Command A, (b) current pricing, (c) Amharic in the Gemini model-card language list, (d) Amharic in Cohere embed's official language list, (e) multilingual-e5's exact language list/dims. This is a ~30-minute manual verification pass or a re-run with web access.
+1. **[resolved] Live web verification** — completed in the "Verification pass (live web, 2026-08-11)" section below: every `[doc:]` claim was checked against official URLs; the HIGH-severity "Cohere has no Amharic" claim was **contradicted** (Supported Languages page lists 104 languages incl. Amharic → severity dropped to MEDIUM), Gemini pricing confirmed (2.5 Flash $0.30/$2.50), current lineup noted as 3.x (3.5-flash-lite $0.30/$2.50 agentic pick), Command A API price **unconfirmed** on the live page, multilingual-e5-large Amharic confirmed, PG FTS no-Amharic confirmed, DeepMind model-card PDF dead. **Re-confirmed 2026-08-12** (see re-verification table below): Amharic still on Cohere's supported-languages page, Gemini 3.x lineup still current, multilingual-e5 still lists Amharic, PG docs live, model-card PDF still dead. Pricing-page drift since 08-11: **Command A+ now listed as a free open-source model** (Apache 2.0, 48 languages — not the hosted API rate), hosted Command A $/token still not shown; Command R re-priced at $0.15/$0.60; **Embed 4** ($0.12/M) now listed. Remaining unverified: hosted Command A API price, Vertex embedding dims (JS-rendered).
 2. **No Amharic-specific quality benchmarks exist from either provider** for LLM answer quality — the recommendation leans on official language-support claims + cost; empirical eval (Recommendation 6) is required to confirm.
 3. **Unknown corpus composition:** whether the KB actually contains `language='am'` chunks (and how many) determines the real severity of the language-gating finding (9). Inspect `knowledge_documents.language` distribution in the `adisu_ai` DB.
 4. **Transliteration normalization** (Recommendation 3b) has no off-the-shelf library verified for this repo's language stack (Python 3.11); options (e.g., a curated Fidel↔Latin map for Amharic business vocabulary) need prototyping.
@@ -154,3 +154,19 @@ Live-fetched against official sources. Corrections and confirmations:
 - The **HIGH-severity** "Cohere has no Amharic" risk is removed — Cohere now documents Amharic. The decision between Cohere and Gemini should now be driven by *empirical* Amharic quality (Recommendation 6 in the brief — the eval set) rather than documentation, plus cost.
 - The provider-switch recommendation should target the **current Gemini lineup** (3.5-flash-lite for cost/agentic, 3.6-flash for quality) rather than 2.5-flash.
 - Embedding/retrieval findings (FTS weakness, language-gating, transliteration gap, pg_trgm, Amharic normalization) are **unchanged** — they were repo-grounded, not doc-dependent.
+
+---
+
+## Re-verification pass (live web, 2026-08-12)
+
+| # | Claim | Verdict 2026-08-12 | Basis |
+|---|---|---|---|
+| R1 | Cohere Supported Languages lists Amharic (A1 correction holds) | ✓ CONFIRMED — page 200, "Amharic" present | https://docs.cohere.com/docs/supported-languages |
+| R2 | Gemini current lineup = 3.x (A4 holds) | ✓ CONFIRMED — pricing page 200, "3.5-flash-lite" and "3.6-flash" present | https://ai.google.dev/gemini-api/docs/pricing |
+| R3 | Command A absent from cohere.com/pricing (A5) | **UPDATED** — Command A+ now listed as **free open-source** (Apache 2.0, "Multilingual across 48 languages", tool use); hosted API $/token still not shown. Page drift: Command R now $0.15/$0.60 (was $0.50/$1.50), **Embed 4** $0.12/M listed, Rerank 4 Fast/Pro $2/$2.5 per 1K searches | https://cohere.com/pricing |
+| R4 | multilingual-e5-large lists Amharic (A7 holds) | ✓ CONFIRMED — page 200, "Amharic" present | https://huggingface.co/intfloat/multilingual-e5-large |
+| R5 | PostgreSQL ships no Amharic FTS config (A8 holds) | ✓ CONFIRMED — docs 200 | https://www.postgresql.org/docs/current/textsearch-controls.html |
+| R6 | DeepMind 2.5 Flash model-card PDF dead (A11 holds) | ✓ CONFIRMED — still 404 (NoSuchKey) | storage.googleapis.com (dead URL) |
+| R7 | Vertex text-embeddings docs (A10) | ✓ 200 — dims still JS-rendered, unverifiable via curl | https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/get-text-embeddings |
+
+**Net effect**: all 2026-08-11 verdicts still hold; one material drift — Command A+ is now public as a free open-source model, which *removes* the pricing-verification blocker for self-hosted use but does **not** confirm the hosted API rate; and the embedding landscape moved (Embed 4, Rerank 4) while the repo runs embed-multilingual-v3.0 — note for the eval/cost work.
