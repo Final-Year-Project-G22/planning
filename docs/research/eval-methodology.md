@@ -167,7 +167,7 @@ Calibration procedure: run the harness against (a) the current prompt set (basel
 
 ## Gaps
 
-1. **Live primary-source verification was not possible in this run**: the `web_search` tool was unavailable in this environment, so all external URLs/arXiv IDs above are cited from knowledge and were **not** fetched/verified live. Verify each URL and metric definition against the paper PDFs before the harness spec is frozen.
+1. **[resolved] Live primary-source verification** — completed in the "Verification pass (live web, 2026-08-11)" section below: all 12 arXiv IDs checked (10 confirmed, 2 corrected: Gao citation 2307.01685 → 2307.02185, TrueTeacher 2305.10726 → 2305.11171), RAGAS/DeepEval docs confirmed (200), promptfoo guide moved (`/docs/guides/rag-evaluation/` → `/docs/guides/evaluate-rag/`), Anthropic AIS URL dead (kept only as lineage; ALCE/RAGChecker carry the concept). **Re-confirmed 2026-08-12** via arXiv API (title match ×10) + HTTP (×5): all verdicts still hold. The harness spec can be frozen with the corrected references; the methodology itself was unaffected.
 2. **Amharic BM25 tokenization** is unverified in this repo — AM retrieval quality (context recall) may be systematically worse; the eval will quantify it, but the root cause may need a tokenizer fix (out of scope for methodology).
 3. **Judge quality for Amharic faithfulness** is unproven — plan a 5-item human spot-check of AM judge outputs before trusting the AM faithfulness cell.
 4. **Pass-bar numbers are proposals**, not measurements — the calibration step (known-bad baseline) is mandatory before the bars become CI gates.
