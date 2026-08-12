@@ -79,7 +79,7 @@ case "${1:-}" in
   create-issue)
     [ $# -ge 2 ] || die "usage: create-issue <team-id> [flags]"
     team="$2"; shift 2
-    title="" body="" project="" assignee=""
+    title="" body="" project="" assignee="" assignee_id=""
     labels=()
     while [ $# -gt 0 ]; do case "$1" in
       --title) title="$2"; shift 2 ;;
@@ -90,17 +90,15 @@ case "${1:-}" in
       *) die "unknown flag: $1" ;;
     esac; done
     [ -n "$title" ] || die "--title is required"
-    payload assignee_id=""
     if [ -n "$assignee" ]; then
       assignee_id=$(user-id-by-email "$assignee") || die "cannot resolve assignee $assignee"
     fi
     payload=$(jq -nc --arg team "$team" --arg title "$title" --arg body "$body" --arg proj "$project" --arg asg "$assignee_id" \
-      '{team: $team, title: $title, body: $body, projectId: ($proj // null), assigneeId: ($asg // null)}')
+      '{team: $team, title: $title, body: $body, projectId: (if $proj == "" then null else $proj end), assigneeId: (if $asg == "" then null else $asg end)}')
     payload=$(jq --argjson labs "$(jq -nc --argjson a "$(printf '%s\n' "${labels[@]:-}" | jq -R . | jq -s 'map(select(length > 2))')" '$a')" \
       '. + {labelIds: $labs}' <<<"$payload")
     query='mutation($team: String!, $title: String!, $body: String!, $projectId: String, $assigneeId: String, $labelIds: [String!]) {
       issueCreate(input: { teamId: $team, title: $title, description: $body, projectId: $projectId, assigneeId: $assigneeId, labelIds: $labelIds }) { issue { id identifier title } } }'
-    res
     res=$(graphql "$query" "$payload")
     jq -e -r '"\(.data.issueCreate.issue.identifier)\t\(.data.issueCreate.issue.id)\t\(.data.issueCreate.issue.title)"' <<<"$res" \
       || die "issueCreate failed: $(jq -c .errors <<<"$res")"
