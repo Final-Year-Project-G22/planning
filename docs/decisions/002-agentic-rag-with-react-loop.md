@@ -1,7 +1,9 @@
 # ADR 002: Agentic RAG with ReAct Loop
 
 ## Status
-Under review — see FIN-73 (research: is ReAct the best loop pattern for grounded QA?); may be superseded by docs/research/agentic-loop-patterns.md.
+Under review — see FIN-73 (research: is ReAct the best loop pattern for grounded QA?).
+
+**Research verdict (2026-08-12, docs/research/agentic-loop-patterns.md)**: the plan-and-execute rejection **stands for the default path** (plan overhead on 2-3-tool queries is pure cost), but ADR-002's scope was wrong — it assumed uniformly simple queries. Mixed intents and KB misses justify a narrow conditional plan path, tested via a probe arm (A4) in the A/B design rather than re-litigated in prose. This is a **scope amendment, not an overturn**; final acceptance pending the harness A/B run.
 
 Originally: Proposed
 
