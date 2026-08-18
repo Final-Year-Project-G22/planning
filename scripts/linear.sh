@@ -102,6 +102,25 @@ case "${1:-}" in
       || die "issueCreate failed: $(jq -c .errors <<<"$res")"
     ;;
 
+  update-issue)
+    [ $# -ge 2 ] || die "usage: update-issue <issue-id> [flags]"
+    issue="$2"; shift 2
+    title="" body=""
+    while [ $# -gt 0 ]; do case "$1" in
+      --title) title="$2"; shift 2 ;;
+      --body) body="$2"; shift 2 ;;
+      *) die "unknown flag: $1" ;;
+    esac; done
+    payload=$(jq -nc --arg t "$title" --arg b "$body" \
+      '{input: {}}')
+    [ -n "$title" ] && payload=$(jq '.input.title = $t' --arg t "$title" <<<"$payload")
+    [ -n "$body" ] && payload=$(jq '.input.description = $b' --arg b "$body" <<<"$payload")
+    query='mutation($issue: String!, $input: IssueUpdateInput!) {
+      issueUpdate(id: $issue, input: $input) { issue { id identifier } } }'
+    res=$(graphql "$query" "$(jq -nc --arg i "$issue" --argjson v "$(jq '.input' <<<"$payload")" '{issue: $i, input: $v}')")
+    jq -e -r '.data.issueUpdate.issue.identifier' <<<"$res" || die "issueUpdate failed: $(jq -c .errors <<<"$res")"
+    ;;
+
   user-id-by-email)
     [ $# -ge 2 ] || die "usage: user-id-by-email <email>"
     query='query($email: String!) { users(filter: { email: { eq: $email } }, first: 1) { nodes { id email } } }'
