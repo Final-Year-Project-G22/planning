@@ -66,11 +66,9 @@ case "${1:-}" in
   ensure-label)
     [ $# -ge 3 ] || die "usage: ensure-label <team-id> <name>"
     team="$2" name="$3"
-    found
     found=$(graphql "{ team(id: \"$team\") { labels(first: 100) { nodes { id name } } } }" \
       | jq -r --arg n "$name" '.data.team.labels.nodes[] | select(.name == $n) | .id' | head -1)
     if [ -n "$found" ]; then echo "$found"; exit 0; fi
-    created
     created=$(graphql 'mutation($team: String!, $name: String!) { labelCreate(input: { teamId: $team, name: $name }) { label { id } } }' \
       "{\"team\": \"$team\", \"name\": \"$name\"}")
     jq -e -r '.data.labelCreate.label.id' <<<"$created" || die "labelCreate failed: $(jq -c .errors <<<"$created")"
@@ -127,7 +125,7 @@ case "${1:-}" in
     if [ -z "$email" ]; then
       email=$(graphql '{ viewer { email } }' | jq -r '.data.viewer.email')
     fi
-    user_id; user_id=$("$0" user-id-by-email "$email")
+    user_id=$("$0" user-id-by-email "$email")
     query='mutation($issue: String!, $user: String!) {
       issueUpdate(id: $issue, input: { assigneeId: $user }) { issue { id assignee { email } } } }'
     res=$(graphql "$query" "{\"issue\": \"$2\", \"user\": \"$user_id\"}")
